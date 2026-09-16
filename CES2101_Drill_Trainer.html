@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CES2101 — Modules 1–3 Drill Trainer</title>
+<style>
+:root{
+  --paper:#eef1f3;
+  --grid:#d7dde2;
+  --ink:#16222c;
+  --ink-soft:#4a5d6b;
+  --rule:#c2ccd4;
+  --card:#ffffff;
+  --indigo:#2f42c9;
+  --indigo-soft:#e6e9fb;
+  --green:#12795a;
+  --green-soft:#dff2ea;
+  --red:#b3261e;
+  --red-soft:#fbe4e2;
+  --amber:#8a5b00;
+  --amber-soft:#fdf0d5;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, "DejaVu Sans Mono", monospace;
+  --sans: ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--sans);
+  color:var(--ink);
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:26px 26px;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:18px 16px 80px}
+
+header.top{
+  display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between;
+  border-bottom:3px solid var(--ink);padding-bottom:10px;margin-bottom:14px;
+}
+h1{font-size:23px;line-height:1.15;margin:0;letter-spacing:-.02em;font-weight:700}
+h1 span{display:block;font-size:12.5px;font-weight:500;color:var(--ink-soft);letter-spacing:0;margin-top:4px}
+.scorebar{display:flex;gap:16px;font-family:var(--mono);font-size:12.5px;color:var(--ink-soft)}
+.scorebar b{color:var(--ink);font-size:15px;display:block;font-weight:600}
+
+nav.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+nav.tabs button{
+  font-family:var(--sans);font-size:13.5px;font-weight:600;color:var(--ink-soft);
+  background:transparent;border:1px solid var(--rule);border-radius:2px;
+  padding:7px 13px;cursor:pointer;
+}
+nav.tabs button:hover{background:#fff}
+nav.tabs button[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+
+.layout{display:grid;grid-template-columns:238px 1fr;gap:18px;align-items:start}
+@media (max-width:820px){.layout{grid-template-columns:1fr}}
+
+.rail{background:var(--card);border:1px solid var(--rule);border-radius:3px;padding:8px}
+.rail h3{font-size:11.5px;letter-spacing:.06em;color:var(--ink-soft);margin:10px 8px 6px;font-weight:700;text-transform:uppercase}
+.rail h3:first-child{margin-top:4px}
+.rail button{
+  display:block;width:100%;text-align:left;background:none;border:0;border-left:3px solid transparent;
+  padding:7px 9px;font-size:13.3px;color:var(--ink);cursor:pointer;border-radius:2px;font-family:var(--sans);line-height:1.3;
+}
+.rail button:hover{background:var(--indigo-soft)}
+.rail button[aria-current="true"]{background:var(--indigo-soft);border-left-color:var(--indigo);font-weight:600}
+.rail .tgt{float:right;font-family:var(--mono);font-size:11px;color:var(--ink-soft);font-weight:400}
+
+.panel{background:var(--card);border:1px solid var(--rule);border-radius:3px;padding:20px 22px;min-height:420px}
+
+.drillhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding-bottom:10px;margin-bottom:14px}
+.drillhead h2{margin:0;font-size:19px;letter-spacing:-.01em}
+.clock{font-family:var(--mono);font-size:19px;font-variant-numeric:tabular-nums;color:var(--ink-soft)}
+.clock.over{color:var(--red)}
+.tgtnote{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft)}
+
+.given{background:#f7f9fa;border:1px solid var(--rule);border-left:3px solid var(--ink);padding:12px 14px;margin-bottom:16px;border-radius:2px}
+.given .q{font-size:14px;line-height:1.55;margin:0 0 8px}
+.given .q:last-child{margin-bottom:0}
+.data{font-family:var(--mono);font-size:15.5px;letter-spacing:.02em;background:#fff;border:1px solid var(--rule);padding:7px 10px;display:inline-block;border-radius:2px;margin-top:4px}
+.data.big{font-size:18px}
+
+table.mat{border-collapse:collapse;font-family:var(--mono);font-size:14px;margin-top:6px;background:#fff}
+table.mat td{border:1px solid var(--rule);padding:4px 9px;text-align:right;min-width:30px}
+table.mat td.z{color:#b6c0c8}
+
+.steps{display:grid;gap:8px}
+.row{display:grid;grid-template-columns:200px 1fr 26px;gap:10px;align-items:center}
+@media (max-width:620px){.row{grid-template-columns:1fr;gap:4px}}
+.row label{font-size:13px;color:var(--ink-soft);font-family:var(--mono)}
+.row input{
+  font-family:var(--mono);font-size:15px;padding:8px 10px;border:1px solid var(--rule);
+  border-radius:2px;width:100%;background:#fdfdfd;color:var(--ink);
+}
+.row input:focus{outline:2px solid var(--indigo);outline-offset:-1px;background:#fff}
+.row input.ok{background:var(--green-soft);border-color:var(--green)}
+.row input.bad{background:var(--red-soft);border-color:var(--red)}
+.mark{font-family:var(--mono);font-size:16px;font-weight:700}
+.mark.ok{color:var(--green)}
+.mark.bad{color:var(--red)}
+.fix{grid-column:2/3;font-family:var(--mono);font-size:12.5px;color:var(--red);margin-top:-4px}
+@media (max-width:620px){.fix{grid-column:1/2}}
+
+.seqbank{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.tok{
+  font-family:var(--mono);font-size:12.8px;background:#fff;border:1px solid var(--rule);
+  padding:7px 10px;border-radius:2px;cursor:pointer;text-align:left;color:var(--ink);line-height:1.35;
+}
+.tok:hover{border-color:var(--indigo);background:var(--indigo-soft)}
+.tok:disabled{opacity:.3;cursor:default;background:#f2f4f6}
+.seqbuilt{border:1px dashed var(--rule);border-radius:2px;padding:10px;min-height:56px;background:#fbfcfd}
+.seqline{font-family:var(--mono);font-size:13px;padding:4px 6px;display:flex;gap:10px;align-items:flex-start}
+.seqline .n{color:var(--ink-soft);min-width:18px}
+.seqline.ok{background:var(--green-soft)}
+.seqline.bad{background:var(--red-soft)}
+.empty{color:var(--ink-soft);font-size:13px;font-family:var(--sans);padding:6px}
+
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px;padding-top:14px;border-top:1px solid var(--rule)}
+button.act{
+  font-family:var(--sans);font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:2px;cursor:pointer;border:1px solid var(--ink);
+  background:var(--ink);color:#fff;
+}
+button.act.ghost{background:#fff;color:var(--ink)}
+button.act.ghost:hover{background:#f1f4f6}
+button.act:hover{opacity:.9}
+button.act.quiet{background:#fff;color:var(--ink-soft);border-color:var(--rule)}
+
+.verdict{margin-top:14px;padding:11px 14px;border-radius:2px;font-size:14px;font-weight:600;display:none}
+.verdict.show{display:block}
+.verdict.pass{background:var(--green-soft);color:var(--green);border:1px solid var(--green)}
+.verdict.fail{background:var(--red-soft);color:var(--red);border:1px solid var(--red)}
+
+details.hint{margin-top:14px;border:1px solid var(--rule);border-radius:2px;background:#fbfcfd}
+details.hint summary{cursor:pointer;padding:9px 12px;font-size:13px;font-weight:600;color:var(--indigo)}
+details.hint .body{padding:0 14px 12px;font-size:13.4px;line-height:1.6}
+
+/* reading panes */
+.read h2{font-size:20px;margin:26px 0 6px;letter-spacing:-.01em;padding-bottom:5px;border-bottom:2px solid var(--ink)}
+.read h2:first-child{margin-top:0}
+.read h3{font-size:15px;margin:20px 0 5px}
+.read p{font-size:14.2px;line-height:1.65;margin:8px 0;max-width:74ch}
+.read ol,.read ul{font-size:14.2px;line-height:1.62;padding-left:22px;max-width:74ch}
+.read li{margin:4px 0}
+.read code{font-family:var(--mono);font-size:13px;background:#eef1f3;padding:1px 5px;border-radius:2px}
+.read pre{font-family:var(--mono);font-size:12.9px;line-height:1.5;background:#f7f9fa;border:1px solid var(--rule);border-left:3px solid var(--indigo);padding:11px 13px;overflow-x:auto;border-radius:2px;max-width:100%}
+.read .warn{background:var(--amber-soft);border:1px solid #e3c98a;border-left:3px solid var(--amber);padding:10px 13px;font-size:13.6px;line-height:1.6;border-radius:2px;margin:12px 0;max-width:74ch}
+.read .rule{background:var(--indigo-soft);border:1px solid #c3cbf3;border-left:3px solid var(--indigo);padding:10px 13px;font-size:13.8px;line-height:1.6;border-radius:2px;margin:12px 0;max-width:74ch}
+.read table.g{border-collapse:collapse;font-size:13.3px;margin:10px 0;background:#fff}
+.read table.g th,.read table.g td{border:1px solid var(--rule);padding:6px 10px;text-align:left;vertical-align:top}
+.read table.g th{background:#f2f5f7;font-weight:600}
+.read table.g td.m,.read table.g th.m{font-family:var(--mono)}
+.cardgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:10px}
+.mini{border:1px solid var(--rule);border-radius:2px;padding:11px 13px;background:#fbfcfd}
+.mini h4{margin:0 0 5px;font-size:13.5px}
+.mini p{font-size:12.9px;margin:0;color:var(--ink-soft);line-height:1.55}
+footer{margin-top:26px;font-size:12px;color:var(--ink-soft);text-align:center}
+kbd{font-family:var(--mono);font-size:11.5px;border:1px solid var(--rule);border-bottom-width:2px;border-radius:3px;padding:1px 5px;background:#fff}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Data Structures — drill trainer
+    <span>CES2101 · Modules 1–3 · arrays &amp; sorting · linked lists · stacks &amp; queues</span>
+  </h1>
+  <div class="scorebar">
+    <div>solved<b id="sc-ok">0</b></div>
+    <div>attempts<b id="sc-try">0</b></div>
+    <div>streak<b id="sc-streak">0</b></div>
+    <div>best<b id="sc-best">0</b></div>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" id="tab-drill" aria-selected="true" onclick="showTab('drill')">Drills</button>
+  <button role="tab" id="tab-heur" aria-selected="false" onclick="showTab('heur')">Heuristic cards</button>
+  <button role="tab" id="tab-write" aria-selected="false" onclick="showTab('write')">Write-up templates</button>
+  <button role="tab" id="tab-check" aria-selected="false" onclick="showTab('check')">Error checklist</button>
+</nav>
+
+<!-- ================= DRILLS ================= -->
+<div id="view-drill" class="layout">
+  <aside class="rail" id="rail"></aside>
+  <main class="panel">
+    <div class="drillhead">
+      <div>
+        <h2 id="d-title">—</h2>
+        <div class="tgtnote" id="d-target"></div>
+      </div>
+      <div class="clock" id="d-clock">0:00</div>
+    </div>
+    <div id="d-body"></div>
+    <div class="actions">
+      <button class="act" onclick="checkNow()">Check</button>
+      <button class="act ghost" onclick="newProblem()">New problem</button>
+      <button class="act quiet" onclick="revealAll()">Reveal answers</button>
+    </div>
+    <div class="verdict" id="d-verdict"></div>
+    <div id="d-hint"></div>
+  </main>
+</div>
+
+<!-- ================= HEURISTICS ================= -->
+<div id="view-heur" class="panel read" style="display:none"></div>
+<div id="view-write" class="panel read" style="display:none"></div>
+<div id="view-check" class="panel read" style="display:none"></div>
+
+<footer>Offline file — no internet needed. <kbd>Enter</kbd> checks · <kbd>Shift</kbd>+<kbd>Enter</kbd> next problem.</footer>
+</div>
+
+<script>
+/* ---------------- helpers ---------------- */
+const R=n=>Math.floor(Math.random()*n);
+const pick=a=>a[R(a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=R(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const arrTxt=a=>a.join(' ');
+
+/* ================= GENERATORS ================= */
+const DRILLS=[];
+function D(o){DRILLS.push(o);}
+
+/* ---- M1: Binary search ---- */
+D({id:'bin',mod:1,name:'Binary search trace',target:75,make(){
+  const n=9+R(3);const s=new Set();while(s.size<n)s.add(3+R(70));
+  const a=[...s].sort((x,y)=>x-y);
+  const present=Math.random()<0.7;
+  let key;
+  if(present)key=a[R(n)];else{do{key=3+R(70);}while(s.has(key));}
+  let lo=0,hi=n-1,steps=[],found=-1;
+  while(lo<=hi){const mid=(lo+hi)>>1;steps.push([lo,hi,mid]);if(a[mid]===key){found=mid;break;}
+    if(key<a[mid])hi=mid-1;else lo=mid+1;}
+  const f=steps.map((s,i)=>({label:'iter '+(i+1)+'  low hi mid',ans:s.join(' '),mode:'nums',ph:'low hi mid'}));
+  f.push({label:'result',ans:found<0?'NOT FOUND':String(found),mode:'text',ph:'index or NOT FOUND'});
+  return{given:`<p class="q">Array (0-based index), search for key = <b>${key}</b>. Give <code>low high mid</code> for every iteration, then the result index.</p>
+   <div class="data big">${arrTxt(a)}</div>
+   <p class="q" style="margin-top:8px;font-family:var(--mono);font-size:12.5px;color:var(--ink-soft)">idx: ${a.map((_,i)=>i).join('  ')}</p>`,
+   fields:f,
+   hint:'mid = (low+high)/2 with integer division (floor). key &lt; a[mid] → high = mid−1. key &gt; a[mid] → low = mid+1. Stop when low &gt; high → not found.'};
+}});
+
+/* ---- M1: sorting passes ---- */
+function sortDrill(id,name,fn,note){
+ D({id,mod:1,name,target:80,make(){
+   const n=6;const a=Array.from({length:n},()=>2+R(80));
+   const passes=fn(a.slice());
+   return{given:`<p class="q">Sort <b>ascending</b>. Write the whole array as it stands <b>after each pass</b>.</p><div class="data big">${arrTxt(a)}</div>`,
+    fields:passes.map((p,i)=>({label:'after pass '+(i+1),ans:arrTxt(p),mode:'nums',ph:'n n n n n n'})),
+    hint:note};
+ }});
+}
+sortDrill('bubble','Bubble sort passes',a=>{const out=[],n=a.length;
+  for(let i=0;i<n-1;i++){for(let j=0;j<n-1-i;j++)if(a[j]>a[j+1]){const t=a[j];a[j]=a[j+1];a[j+1]=t;}out.push(a.slice());}return out;},
+  'Pass i compares adjacent pairs j = 0 … n−2−i and swaps if a[j] &gt; a[j+1]. After pass i the last i+1 elements are final. n−1 passes total.');
+sortDrill('selection','Selection sort passes',a=>{const out=[],n=a.length;
+  for(let i=0;i<n-1;i++){let m=i;for(let j=i+1;j<n;j++)if(a[j]<a[m])m=j;const t=a[i];a[i]=a[m];a[m]=t;out.push(a.slice());}return out;},
+  'Pass i: find the minimum of a[i…n−1], swap it into position i. Exactly one swap per pass. Front of the array grows sorted.');
+sortDrill('insertion','Insertion sort passes',a=>{const out=[],n=a.length;
+  for(let i=1;i<n;i++){const k=a[i];let j=i-1;while(j>=0&&a[j]>k){a[j+1]=a[j];j--;}a[j+1]=k;out.push(a.slice());}return out;},
+  'Pass i (i = 1 … n−1): lift key = a[i], shift every larger element of the sorted prefix one place right, drop key into the hole. a[0…i] is sorted after pass i.');
+
+/* ---- M1: quick sort partition ---- */
+D({id:'quick',mod:1,name:'Quick sort — first partition',target:90,make(){
+  const n=8;const sq=new Set();while(sq.size<n)sq.add(2+R(90));const a=shuffle([...sq]);
+  const b=a.slice();const pivot=b[0];let i=1,j=n-1;
+  const swap=(x,y)=>{const t=b[x];b[x]=b[y];b[y]=t;};
+  while(i<=j){while(i<=n-1&&b[i]<=pivot)i++;while(b[j]>pivot)j--;if(i<j)swap(i,j);}
+  swap(0,j);
+  const left=b.slice(0,j),right=b.slice(j+1);
+  return{given:`<p class="q">Pivot = <b>first element</b>. Do the <b>first partition only</b> (Horowitz scheme: i scans right while a[i] ≤ pivot, j scans left while a[j] &gt; pivot, swap when i &lt; j, finally swap pivot with a[j]).</p><div class="data big">${arrTxt(a)}</div>`,
+   fields:[
+    {label:'pivot value',ans:String(pivot),mode:'nums',ph:''},
+    {label:'array after partition',ans:arrTxt(b),mode:'nums',ph:''},
+    {label:'pivot final index',ans:String(j),mode:'nums',ph:'0-based'},
+    {label:'left sublist',ans:left.length?arrTxt(left):'EMPTY',mode:'text',ph:'or EMPTY'},
+    {label:'right sublist',ans:right.length?arrTxt(right):'EMPTY',mode:'text',ph:'or EMPTY'}],
+   hint:'i starts at low+1, j at high. Move i right while a[i] ≤ pivot. Move j left while a[j] &gt; pivot. If i &lt; j swap a[i], a[j] and continue; when i ≥ j stop and swap a[low] with a[j]. j is the pivot\'s final resting index — everything left of it is ≤ pivot, everything right is &gt; pivot.'};
+}});
+
+/* ---- M1: merge sort levels ---- */
+D({id:'merge',mod:1,name:'Merge sort — merge levels',target:90,make(){
+  const a=Array.from({length:8},()=>2+R(80));
+  const merge=(x,y)=>{const o=[];let i=0,j=0;while(i<x.length&&j<y.length)o.push(x[i]<=y[j]?x[i++]:y[j++]);
+    while(i<x.length)o.push(x[i++]);while(j<y.length)o.push(y[j++]);return o;};
+  let lvl=a.map(v=>[v]);const out=[];
+  while(lvl.length>1){const nxt=[];for(let i=0;i<lvl.length;i+=2)nxt.push(merge(lvl[i],lvl[i+1]));out.push(nxt);lvl=nxt;}
+  const fmt=blocks=>blocks.map(b=>b.join(' ')).join(' | ');
+  return{given:`<p class="q">Merge sort (split into halves down to single elements, then merge back). Write each merge level, blocks separated by <code>|</code>.</p><div class="data big">${arrTxt(a)}</div>`,
+   fields:out.map((b,i)=>({label:'level '+(i+1)+' ('+b[0].length+'-blocks)',ans:fmt(b),mode:'nums',ph:'a b | c d | …'})),
+   hint:'Split 8 → 4+4 → 2+2 → 1+1. Merging two sorted blocks: compare the two front elements, take the smaller, advance that block; when one block runs out, copy the rest of the other. Level sizes go 2, 4, 8.'};
+}});
+
+/* ---- M1: sparse matrix triplet + transpose ---- */
+D({id:'sparse',mod:1,name:'Sparse matrix triplet + transpose',target:100,make(){
+  const rows=5,cols=6;const M=Array.from({length:rows},()=>Array(cols).fill(0));
+  const k=5+R(2);const used=new Set();
+  while(used.size<k){const r=R(rows),c=R(cols);const key=r+','+c;if(used.has(key))continue;used.add(key);M[r][c]=1+R(9)*(Math.random()<0.15?-1:1);}
+  const trip=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)if(M[r][c])trip.push([r,c,M[r][c]]);
+  const tt=trip.map(t=>[t[1],t[0],t[2]]).sort((p,q)=>p[0]-q[0]||p[1]-q[1]);
+  const f=[{label:'row 0 of triplet',ans:`${rows} ${cols} ${trip.length}`,mode:'nums',ph:'rows cols count'},
+           {label:'triplets of A',ans:trip.map(t=>t.join(' ')).join(' ; '),mode:'nums',ph:'r c v ; r c v ; …'},
+           {label:'triplets of transpose',ans:tt.map(t=>t.join(' ')).join(' ; '),mode:'nums',ph:'r c v ; …'}];
+  let html='<table class="mat">';
+  for(let r=0;r<rows;r++){html+='<tr>';for(let c=0;c<cols;c++)html+=`<td class="${M[r][c]?'':'z'}">${M[r][c]}</td>`;html+='</tr>';}
+  html+='</table>';
+  return{given:`<p class="q">Write the 3-tuple (triplet) representation in <b>row-major</b> order, then the triplet form of the <b>transpose</b> (sorted by its own row, then column).</p>${html}`,
+   fields:f,
+   hint:'Row 0 of the triplet table stores rows, columns, number of non-zeros. Then one row per non-zero, scanning left→right, top→bottom. Transpose: swap the row and column of every triplet, then re-sort by row. Fast transpose does the same without sorting, by pre-counting how many non-zeros sit in each column of A.'};
+}});
+
+/* ---- M1: recursion trace ---- */
+const RECS=[
+ {code:`int f(int n){ if(n==0) return 1; return n*f(n-1); }`,arg:()=>5+R(4),val:n=>{let r=1;for(let i=2;i<=n;i++)r*=i;return r;},extra:n=>({label:'number of calls to f',ans:String(n+1)}),
+  note:'One call per value from n down to 0 → n+1 calls.'},
+ {code:`int f(int n){ if(n<=1) return n; return f(n-1)+f(n-2); }`,arg:()=>6+R(5),val:n=>{let a=0,b=1;if(n===0)return 0;for(let i=2;i<=n;i++){const t=a+b;a=b;b=t;}return b;},
+  extra:n=>{const fib=m=>{let a=0,b=1;if(m===0)return 0;for(let i=2;i<=m;i++){const t=a+b;a=b;b=t;}return b;};return{label:'total calls made',ans:String(2*fib(n+1)-1)};},
+  note:'Fibonacci. Total calls for f(n) = 2·F(n+1) − 1 where F is the Fibonacci number.'},
+ {code:`int f(int a,int b){ if(b==0) return a; return f(b, a%b); }`,arg:()=>null,note:'Euclid\'s GCD — each call replaces (a,b) with (b, a mod b).'},
+ {code:`int f(int n){ if(n==0) return 0; return n%10 + f(n/10); }`,arg:()=>1000+R(89999),val:n=>String(n).split('').reduce((s,d)=>s+ +d,0),note:'Sum of digits — peels the last digit each call.'},
+ {code:`int f(int n){ if(n==0) return 0; return 1 + f(n/2); }`,arg:()=>20+R(200),val:n=>{let c=0;while(n>0){n=Math.floor(n/2);c++;}return c;},note:'Counts how many times n can be halved before reaching 0 (integer division).'},
+ {code:`int f(int n){ if(n==1) return 1; return 2*f(n-1)+1; }`,arg:()=>4+R(6),val:n=>Math.pow(2,n)-1,note:'Tower of Hanoi move count = 2^n − 1.'}
+];
+D({id:'recur',mod:1,name:'Recursion — trace the return',target:60,make(){
+  const r=pick(RECS);
+  if(r.arg()===null){
+    const a=20+R(200),b=6+R(60);
+    const g=(x,y)=>y===0?x:g(y,x%y);
+    const chain=[];let x=a,y=b;while(y!==0){chain.push(`f(${x},${y})`);const t=x%y;x=y;y=t;}chain.push(`f(${x},0)`);
+    return{given:`<pre style="font-family:var(--mono);font-size:13.5px;background:#f7f9fa;border:1px solid var(--rule);padding:10px;border-radius:2px">${esc(r.code)}</pre><p class="q">What does <code>f(${a}, ${b})</code> return?</p>`,
+      fields:[{label:'return value',ans:String(g(a,b)),mode:'nums'},{label:'call chain',ans:chain.join(' ; '),mode:'nums',ph:'f(a,b) ; f(b,r) ; …'}],
+      hint:r.note};
+  }
+  const n=r.arg();
+  const f=[{label:'return value',ans:String(r.val(n)),mode:'nums'}];
+  if(r.extra){const e=r.extra(n);f.push({label:e.label,ans:e.ans,mode:'nums'});}
+  return{given:`<pre style="font-family:var(--mono);font-size:13.5px;background:#f7f9fa;border:1px solid var(--rule);padding:10px;border-radius:2px">${esc(r.code)}</pre><p class="q">What does <code>f(${n})</code> return?</p>`,
+   fields:f,hint:r.note};
+}});
+
+/* ---- M2: pointer surgery ordering ---- */
+const SEQS=[
+ {name:'SLL — insert new node after node p',
+  order:['temp = (struct node *)malloc(sizeof(struct node));','temp->data = item;','temp->link = p->link;','p->link = temp;'],
+  note:'Always attach the new node to the rest of the list BEFORE you cut p\'s old link. Reverse those two lines and the tail of the list is lost.'},
+ {name:'SLL — insert at the front (head given)',
+  order:['temp = (struct node *)malloc(sizeof(struct node));','temp->data = item;','temp->link = head;','head = temp;'],
+  note:'temp->link = head first, then move head. If head moves first you can never reach the old first node.'},
+ {name:'SLL — delete node holding key',
+  order:['prev = NULL; cur = head;','while(cur != NULL && cur->data != key) { prev = cur; cur = cur->link; }','if(cur == NULL) { printf("Not found"); return head; }','if(prev == NULL) head = cur->link;','else prev->link = cur->link;','free(cur);'],
+  note:'Two pointers (prev, cur). Handle three cases: not found, deleting the first node (prev == NULL), deleting any other node. free() always last.'},
+ {name:'SLL — reverse the list',
+  order:['prev = NULL; cur = head;','while(cur != NULL) {','next = cur->link;','cur->link = prev;','prev = cur;','cur = next;','}','head = prev;'],
+  note:'Three pointers. Save next BEFORE flipping the link, otherwise you lose the rest of the list. At the end head = prev, not cur (cur is NULL).'},
+ {name:'DLL — insert new node after node cur',
+  order:['temp = (struct dnode *)malloc(sizeof(struct dnode));','temp->info = item;','temp->prev = cur;','temp->next = cur->next;','if(cur->next != NULL) cur->next->prev = temp;','cur->next = temp;'],
+  note:'Four links to fix. Set both of temp\'s links first, then the right neighbour\'s prev (while cur->next still points there), and only then cur->next = temp — last.'},
+ {name:'DLL — delete node cur',
+  order:['if(cur->prev != NULL) cur->prev->next = cur->next;','else head = cur->next;','if(cur->next != NULL) cur->next->prev = cur->prev;','else tail = cur->prev;','free(cur);'],
+  note:'Bypass from the left, bypass from the right, then free. The else branches cover deleting the first / last node.'},
+ {name:'Linked stack — push',
+  order:['temp = (struct node *)malloc(sizeof(struct node));','if(temp == NULL) { printf("Stack overflow"); return; }','temp->data = item;','temp->link = top;','top = temp;'],
+  note:'A linked stack pushes at the front. Overflow only happens if malloc fails.'},
+ {name:'Linked stack — pop',
+  order:['if(top == NULL) { printf("Stack underflow"); return -1; }','temp = top;','item = temp->data;','top = top->link;','free(temp);','return item;'],
+  note:'Check underflow first, save the node, read the data, move top, free. Never free before you have read the data.'},
+ {name:'Linked queue — enqueue',
+  order:['temp = (struct node *)malloc(sizeof(struct node));','temp->data = item;','temp->link = NULL;','if(front == NULL) { front = rear = temp; return; }','rear->link = temp;','rear = temp;'],
+  note:'Insert at rear. The empty-queue case must set BOTH front and rear.'},
+ {name:'Linked queue — dequeue',
+  order:['if(front == NULL) { printf("Queue is empty"); return -1; }','temp = front;','item = temp->data;','front = front->link;','if(front == NULL) rear = NULL;','free(temp);','return item;'],
+  note:'Delete from front. When the last node leaves, rear must be reset to NULL or it dangles.'},
+ {name:'Sorted SLL — insert keeping order',
+  order:['temp = (struct node *)malloc(sizeof(struct node)); temp->data = item;','prev = NULL; cur = head;','while(cur != NULL && cur->data < item) { prev = cur; cur = cur->link; }','temp->link = cur;','if(prev == NULL) head = temp;','else prev->link = temp;'],
+  note:'Walk until cur is the first node bigger than item; temp goes between prev and cur. prev == NULL means it becomes the new head.'},
+ {name:'Circular SLL with last pointer — insert at front',
+  order:['temp = (struct node *)malloc(sizeof(struct node)); temp->data = item;','if(last == NULL) { last = temp; temp->link = temp; return last; }','temp->link = last->link;','last->link = temp;','return last;'],
+  note:'last->link is the first node. Point temp at the old first, then hook last to temp. last itself does not move for a front insert.'},
+ {name:'Polynomial add — appending a term to result list',
+  order:['if(p->expo == q->expo) { c = p->coef + q->coef; e = p->expo; p = p->link; q = q->link; }','else if(p->expo > q->expo) { c = p->coef; e = p->expo; p = p->link; }','else { c = q->coef; e = q->expo; q = q->link; }','if(c != 0) attach(&result, c, e);'],
+  note:'Terms are stored in descending exponent order. Compare exponents, take the bigger one, and only advance the list you consumed. Equal exponents → add coefficients and advance both; skip the term if the sum is 0.'}
+];
+D({id:'seq',mod:2,name:'Pointer step ordering',target:60,seq:true,make(){
+  const s=pick(SEQS);
+  return{given:`<p class="q"><b>${esc(s.name)}</b> — click the statements in the correct execution order.</p>`,
+   order:s.order,hint:s.note};
+}});
+
+/* ---- M2: linked list op trace ---- */
+D({id:'listtrace',mod:2,name:'Linked list — final list after ops',target:75,make(){
+  const pool=new Set();const fresh=()=>{let v;do{v=2+R(80);}while(pool.has(v));pool.add(v);return v;};
+  const n=5;const L=Array.from({length:n},fresh);
+  const ops=[];const work=L.slice();
+  const kinds=['insfront','insend','insafter','insbefore','del','delalt','rev','sort'];
+  const chosen=shuffle(kinds).slice(0,3);
+  chosen.forEach(k=>{
+    if(k==='insfront'){const v=fresh();ops.push('insert '+v+' at front');work.unshift(v);}
+    if(k==='insend'){const v=fresh();ops.push('insert '+v+' at end');work.push(v);}
+    if(k==='insafter'){const t=pick(work);const v=fresh();ops.push('insert '+v+' after '+t);work.splice(work.indexOf(t)+1,0,v);}
+    if(k==='insbefore'){const t=pick(work);const v=fresh();ops.push('insert '+v+' before '+t);work.splice(work.indexOf(t),0,v);}
+    if(k==='del'){const t=pick(work);ops.push('delete '+t);work.splice(work.indexOf(t),1);}
+    if(k==='delalt'){ops.push('delete every alternate node starting from the 2nd');for(let i=work.length-(work.length%2===0?1:2);i>=1;i-=2)work.splice(i,1);}
+    if(k==='rev'){ops.push('reverse the list');work.reverse();}
+    if(k==='sort'){ops.push('sort ascending');work.sort((a,b)=>a-b);}
+  });
+  return{given:`<p class="q">Starting list (head → … → NULL):</p><div class="data big">${L.join(' -> ')} -> NULL</div>
+    <p class="q" style="margin-top:10px">Apply, in order:</p><ol style="font-size:13.6px;line-height:1.6;margin:4px 0 0;padding-left:20px">${ops.map(o=>'<li>'+esc(o)+'</li>').join('')}</ol>`,
+   fields:[{label:'final list',ans:work.join(' '),mode:'nums',ph:'values separated by spaces'},
+           {label:'number of nodes',ans:String(work.length),mode:'nums'}],
+   hint:'Redraw the list after every single operation — do not try to do two in your head. "Every alternate node starting from the 2nd" removes positions 2, 4, 6 … of the list as it stands at that moment.'};
+}});
+
+/* ---- M3: infix -> postfix / prefix ---- */
+const OPS=['+','-','*','/','^'];
+const PREC={'+':1,'-':1,'*':2,'/':2,'^':3};
+function randTree(k,ctr){
+  if(k===1)return{v:String.fromCharCode(65+(ctr.i++%8))};
+  const l=1+R(k-1);
+  return{op:pick(OPS),L:randTree(l,ctr),R:randTree(k-l,ctr)};
+}
+function infixOf(t){
+  if(t.v)return{s:t.v,p:9};
+  const L=infixOf(t.L),Rr=infixOf(t.R),p=PREC[t.op],ra=t.op==='^';
+  let ls=(L.p<p||(L.p===p&&ra))?'('+L.s+')':L.s;
+  let rs=(Rr.p<p||(Rr.p===p&&!ra))?'('+Rr.s+')':Rr.s;
+  if(Math.random()<0.18){return{s:'('+ls+t.op+rs+')',p:9};}
+  return{s:ls+t.op+rs,p};
+}
+const postOf=t=>t.v?t.v:postOf(t.L)+postOf(t.R)+t.op;
+const preOf=t=>t.v?t.v:t.op+preOf(t.L)+preOf(t.R);
+
+D({id:'post',mod:3,name:'Infix → postfix',target:70,make(){
+  const t=randTree(4+R(2),{i:R(3)});const inf=infixOf(t).s;
+  return{given:`<p class="q">Convert to <b>postfix</b> using the stack method.</p><div class="data big">${esc(inf)}</div>`,
+   fields:[{label:'postfix',ans:postOf(t),mode:'text',ph:'e.g. AB+C*'}],
+   hint:'Scan left→right. Operand → output. "(" → push. ")" → pop and output until "(" , discard the "(" . Operator → while the stack top is an operator of higher or equal precedence (higher only, for right-associative ^), pop it to output; then push. At the end pop everything left. Precedence: ^ &gt; * / &gt; + −.'};
+}});
+D({id:'pre',mod:3,name:'Infix → prefix',target:85,make(){
+  const t=randTree(4+R(2),{i:R(3)});const inf=infixOf(t).s;
+  return{given:`<p class="q">Convert to <b>prefix</b>.</p><div class="data big">${esc(inf)}</div>`,
+   fields:[{label:'prefix',ans:preOf(t),mode:'text',ph:'e.g. *+ABC'}],
+   hint:'Reverse the infix string, swap every "(" with ")" , convert to postfix (treating ^ as LEFT-associative now), then reverse the result. Safer alternative under exam pressure: build the expression tree and read it in preorder (root, left, right).'};
+}});
+D({id:'posteval',mod:3,name:'Postfix evaluation (stack trace)',target:80,make(){
+  const t=(function g(k){if(k===1)return{v:String(1+R(9))};const l=1+R(k-1);return{op:pick(['+','-','*']),L:g(l),R:g(k-l)};})(4);
+  const toks=postOf(t).split('');
+  const st=[],trace=[];
+  toks.forEach(c=>{
+    if('+-*'.includes(c)){const b=st.pop(),a=st.pop();st.push(c==='+'?a+b:c==='-'?a-b:a*b);}
+    else st.push(+c);
+    trace.push(st.slice().join(' '));
+  });
+  return{given:`<p class="q">Evaluate this <b>postfix</b> expression. After each token, write the stack contents <b>bottom → top</b>.</p><div class="data big">${esc(toks.join(' '))}</div>`,
+   fields:toks.map((c,i)=>({label:'after  '+c,ans:trace[i],mode:'nums',ph:'bottom … top'}))
+     .concat([{label:'final value',ans:String(st[0]),mode:'nums'}]),
+   hint:'Operand → push. Operator → pop twice: the FIRST pop is the right operand, the second is the left. Compute left op right and push the result. One value remains at the end.'};
+}});
+D({id:'preeval',mod:3,name:'Prefix evaluation',target:70,make(){
+  const t=(function g(k){if(k===1)return{v:String(1+R(9))};const l=1+R(k-1);return{op:pick(['+','-','*']),L:g(l),R:g(k-l)};})(4);
+  const toks=preOf(t).split('');
+  const st=[];
+  for(let i=toks.length-1;i>=0;i--){const c=toks[i];
+    if('+-*'.includes(c)){const a=st.pop(),b=st.pop();st.push(c==='+'?a+b:c==='-'?a-b:a*b);}
+    else st.push(+c);}
+  const ev=x=>x.v?+x.v:(x.op==='+'?ev(x.L)+ev(x.R):x.op==='-'?ev(x.L)-ev(x.R):ev(x.L)*ev(x.R));
+  return{given:`<p class="q">Evaluate this <b>prefix</b> expression.</p><div class="data big">${esc(toks.join(' '))}</div>`,
+   fields:[{label:'value',ans:String(ev(t)),mode:'nums'},{label:'equivalent postfix',ans:postOf(t),mode:'text'}],
+   hint:'Scan RIGHT to LEFT. Operand → push. Operator → pop twice: here the FIRST pop is the LEFT operand, the second is the right. Push the result.'};
+}});
+
+/* ---- M3: circular queue ---- */
+D({id:'cq',mod:3,name:'Circular queue — front/rear trace',target:90,make(){
+  const N=5;const arr=Array(N).fill('-');let front=-1,rear=-1;
+  const ops=[],fields=[];
+  let count=0;
+  for(let k=0;k<9;k++){
+    const wantEnq=count===0?true:count===N?false:Math.random()<0.62;
+    if(wantEnq){const v=10+R(89);ops.push('enqueue '+v);
+      if((rear+1)%N===front){fields.push({label:'enqueue '+v,ans:'OVERFLOW',mode:'text'});}
+      else{if(front===-1)front=0;rear=(rear+1)%N;arr[rear]=v;count++;
+        fields.push({label:'enqueue '+v,ans:front+' '+rear,mode:'nums',ph:'front rear'});}
+    }else{ops.push('dequeue');
+      if(front===-1){fields.push({label:'dequeue',ans:'UNDERFLOW',mode:'text'});}
+      else{arr[front]='-';if(front===rear){front=rear=-1;}else front=(front+1)%N;count--;
+        fields.push({label:'dequeue',ans:front+' '+rear,mode:'nums',ph:'front rear'});}
+    }
+  }
+  fields.push({label:'final contents front→rear',ans:count===0?'EMPTY':(()=>{const o=[];let i=front;for(let k=0;k<count;k++){o.push(arr[i]);i=(i+1)%N;}return o.join(' ');})(),mode:'text',ph:'or EMPTY'});
+  return{given:`<p class="q">Circular queue, array size <b>${N}</b> (indices 0–${N-1}), initially <code>front = rear = −1</code>. After each operation give <code>front rear</code>, or write OVERFLOW / UNDERFLOW if the operation is rejected.</p>
+   <ol style="font-size:13.6px;line-height:1.55;margin:6px 0 0;padding-left:20px">${ops.map(o=>'<li>'+esc(o)+'</li>').join('')}</ol>`,
+   fields,
+   hint:'Empty test: front == −1. Full test: (rear+1) % N == front. Enqueue: if empty set front = 0; rear = (rear+1) % N; a[rear] = x. Dequeue: read a[front]; if front == rear reset both to −1; else front = (front+1) % N. A rejected operation changes nothing.'};
+}});
+
+/* ---- M3: stack applications ---- */
+D({id:'paren',mod:3,name:'Parenthesis matching trace',target:60,make(){
+  const opens='([{';const pairs={'(':')','[':']','{':'}'};
+  let s='',stack=[],broken=Math.random()<0.5,brokeAt=-1;
+  const len=8+R(4);
+  for(let i=0;i<len;i++){
+    if(stack.length===0||(Math.random()<0.5&&stack.length<3)){const o=pick(opens.split(''));s+=o;stack.push(o);}
+    else{const o=stack.pop();s+=pairs[o];}
+  }
+  while(stack.length){s+=pairs[stack.pop()];}
+  if(broken){const i=R(s.length);const all='()[]{}'.split('');let c;do{c=pick(all);}while(c===s[i]);s=s.slice(0,i)+c+s.slice(i+1);}
+  // evaluate
+  const st=[];let ok=true,idx=-1;
+  for(let i=0;i<s.length;i++){const c=s[i];
+    if('([{'.includes(c))st.push(c);
+    else{if(st.length===0||pairs[st[st.length-1]]!==c){ok=false;idx=i;break;}st.pop();}}
+  if(ok&&st.length){ok=false;idx=s.length;}
+  const maxd=(()=>{let d=0,m=0;for(const c of s){if('([{'.includes(c)){d++;m=Math.max(m,d);}else d--;}return m;})();
+  return{given:`<p class="q">Check the bracket string with a stack.</p><div class="data big">${esc(s)}</div>
+   <p class="q" style="margin-top:6px;font-family:var(--mono);font-size:12.5px;color:var(--ink-soft);white-space:pre">${s.split('').map(c=>c.padStart(3)).join('')}\n${s.split('').map((_,i)=>String(i).padStart(3)).join('')}</p>`,
+   fields:[{label:'balanced?',ans:ok?'YES':'NO',mode:'text',ph:'YES / NO'},
+           {label:ok?'max stack depth':'0-based position of failure',ans:ok?String(maxd):String(idx),mode:'nums'}],
+   hint:'Push every opening bracket. On a closing bracket: if the stack is empty → unbalanced; else pop and check the popped bracket is the matching type. At the end the stack must be empty. Max stack depth = deepest nesting level. If the string ends with brackets still on the stack, the failure position is the end of the string.'};
+}});
+
+/* ---- M3: deque / priority queue ---- */
+D({id:'deque',mod:3,name:'Deque / priority queue ops',target:70,make(){
+  const usePQ=Math.random()<0.45;
+  if(usePQ){
+    const q=[];const ops=[],fields=[];
+    for(let k=0;k<7;k++){
+      if(q.length===0||Math.random()<0.6){const v=10+R(89),p=1+R(5);ops.push(`insert (value ${v}, priority ${p})`);
+        q.push([v,p]);q.sort((a,b)=>a[1]-b[1]);
+        fields.push({label:'after insert '+v,ans:q.map(x=>x[0]).join(' '),mode:'nums',ph:'front → rear'});}
+      else{const removed=q.shift();ops.push('delete (serve highest priority)');
+        fields.push({label:'served value',ans:String(removed[0]),mode:'nums'});}
+    }
+    fields.push({label:'final queue front→rear',ans:q.length?q.map(x=>x[0]).join(' '):'EMPTY',mode:'text'});
+    return{given:`<p class="q"><b>Priority queue</b> — smaller priority number = served first. Equal priorities are served in insertion order (FIFO). Keep the queue ordered front → rear.</p>
+      <ol style="font-size:13.6px;line-height:1.55;margin:6px 0 0;padding-left:20px">${ops.map(o=>'<li>'+esc(o)+'</li>').join('')}</ol>`,
+     fields,hint:'An ordered-list priority queue inserts each element in its priority position (after all elements of equal or better priority) so that deletion is always from the front.'};
+  }
+  const d=[];const ops=[],fields=[];
+  for(let k=0;k<8;k++){
+    const kind=d.length===0?pick(['IF','IR']):pick(['IF','IR','DF','DR']);
+    const v=10+R(89);
+    if(kind==='IF'){ops.push('insert '+v+' at front');d.unshift(v);}
+    if(kind==='IR'){ops.push('insert '+v+' at rear');d.push(v);}
+    if(kind==='DF'){ops.push('delete from front');d.shift();}
+    if(kind==='DR'){ops.push('delete from rear');d.pop();}
+    fields.push({label:'after op '+(k+1),ans:d.length?d.join(' '):'EMPTY',mode:'text',ph:'front → rear'});
+  }
+  return{given:`<p class="q"><b>Deque</b> (double-ended queue), initially empty. After each operation write the contents <b>front → rear</b>.</p>
+    <ol style="font-size:13.6px;line-height:1.55;margin:6px 0 0;padding-left:20px">${ops.map(o=>'<li>'+esc(o)+'</li>').join('')}</ol>`,
+   fields,hint:'A deque allows insert and delete at both ends. Input-restricted deque: insert at one end only, delete at both. Output-restricted deque: insert at both, delete at one end only.'};
+}});
+
+/* ================= ENGINE ================= */
+let cur=null,curDrill=null,t0=0,timer=null,checked=false;
+let score={ok:0,tries:0,streak:0,best:0};
+
+function renderRail(){
+  const rail=document.getElementById('rail');
+  const mods={1:'Module 1 · arrays, search, sort',2:'Module 2 · linked lists',3:'Module 3 · stacks &amp; queues'};
+  let h='';
+  [1,2,3].forEach(m=>{
+    h+='<h3>'+mods[m]+'</h3>';
+    DRILLS.filter(d=>d.mod===m).forEach(d=>{
+      h+=`<button data-id="${d.id}" onclick="loadDrill('${d.id}')">${d.name}<span class="tgt">${d.target}s</span></button>`;
+    });
+  });
+  h+='<h3>Mixed</h3><button data-id="__rand" onclick="loadDrill(\'__rand\')">Random drill</button>';
+  rail.innerHTML=h;
+}
+function markRail(id){
+  document.querySelectorAll('#rail button').forEach(b=>b.setAttribute('aria-current',b.dataset.id===id?'true':'false'));
+}
+function loadDrill(id){
+  if(id==='__rand'){markRail('__rand');curDrill=pick(DRILLS);}
+  else{markRail(id);curDrill=DRILLS.find(d=>d.id===id);}
+  newProblem();
+}
+function newProblem(){
+  if(!curDrill)return;
+  if(document.querySelector('#rail button[data-id="__rand"][aria-current="true"]'))curDrill=pick(DRILLS);
+  cur=curDrill.make();cur.seq=!!curDrill.seq;checked=false;
+  document.getElementById('d-title').textContent=curDrill.name;
+  document.getElementById('d-target').textContent='target time '+curDrill.target+'s — write it the way you would on paper, then check';
+  const v=document.getElementById('d-verdict');v.className='verdict';v.textContent='';
+  let h=`<div class="given">${cur.given}</div>`;
+  if(cur.seq){
+    cur.build=[];
+    h+=`<div class="seqbank" id="bank">${shuffle(cur.order).map(s=>`<button class="tok" onclick="pickTok(this)">${esc(s)}</button>`).join('')}</div>
+        <div class="seqbuilt" id="built"><div class="empty">Click statements above, in order.</div></div>
+        <div style="margin-top:8px"><button class="act quiet" onclick="undoTok()">Undo last</button></div>`;
+  }else{
+    h+='<div class="steps">'+cur.fields.map((f,i)=>
+      `<div class="row"><label for="i${i}">${f.label}</label><input id="i${i}" autocomplete="off" spellcheck="false" placeholder="${f.ph||''}"><span class="mark" id="m${i}"></span></div>`).join('')+'</div>';
+  }
+  document.getElementById('d-body').innerHTML=h;
+  document.getElementById('d-hint').innerHTML=cur.hint?`<details class="hint"><summary>Show the rule (costs you nothing now, costs you marks later)</summary><div class="body">${cur.hint}</div></details>`:'';
+  const first=document.getElementById('i0');if(first)first.focus();
+  startClock();
+}
+function startClock(){
+  clearInterval(timer);t0=Date.now();
+  const el=document.getElementById('d-clock');
+  const tick=()=>{const s=Math.floor((Date.now()-t0)/1000);
+    el.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+    el.className='clock'+(s>curDrill.target?' over':'');};
+  tick();timer=setInterval(tick,500);
+}
+function pickTok(b){b.disabled=true;cur.build.push(b.textContent);drawBuilt();}
+function undoTok(){if(!cur.build.length)return;const s=cur.build.pop();
+  [...document.querySelectorAll('#bank .tok')].find(b=>b.disabled&&b.textContent===s).disabled=false;drawBuilt();}
+function drawBuilt(marks){
+  const el=document.getElementById('built');
+  if(!cur.build.length){el.innerHTML='<div class="empty">Click statements above, in order.</div>';return;}
+  el.innerHTML=cur.build.map((s,i)=>`<div class="seqline ${marks?(marks[i]?'ok':'bad'):''}"><span class="n">${i+1}</span><span>${esc(s)}</span></div>`).join('');
+}
+const normNums=s=>(String(s).match(/-?\d+/g)||[]).join(' ');
+const normText=s=>String(s).toUpperCase().replace(/[\s,;]+/g,'');
+function same(a,b,mode){
+  if(mode==='nums'){
+    if(/[A-Za-z]/.test(b))return normText(a)===normText(b);
+    return normNums(a)===normNums(b)&&normNums(a)!=='';
+  }
+  return normText(a)===normText(b);
+}
+function checkNow(){
+  if(!cur)return;
+  let allOk=true;
+  if(cur.seq){
+    const marks=cur.order.map((s,i)=>cur.build[i]===s);
+    allOk=cur.build.length===cur.order.length&&marks.every(Boolean);
+    drawBuilt(marks);
+  }else{
+    cur.fields.forEach((f,i)=>{
+      const inp=document.getElementById('i'+i),mk=document.getElementById('m'+i);
+      const ok=same(inp.value,f.ans,f.mode);
+      inp.className=ok?'ok':'bad';mk.className='mark '+(ok?'ok':'bad');mk.textContent=ok?'✓':'✗';
+      if(!ok)allOk=false;
+    });
+  }
+  if(!checked){checked=true;score.tries++;
+    if(allOk){score.ok++;score.streak++;score.best=Math.max(score.best,score.streak);}else score.streak=0;
+    updateScore();}
+  const el=Math.floor((Date.now()-t0)/1000);
+  const v=document.getElementById('d-verdict');
+  v.className='verdict show '+(allOk?'pass':'fail');
+  v.textContent=allOk
+    ? `All correct in ${el}s${el<=curDrill.target?' — inside target.':' — target was '+curDrill.target+'s, go again.'}`
+    : 'Not yet. Fix the red rows, or hit Reveal answers and redo this one from scratch.';
+  if(allOk)clearInterval(timer);
+}
+function revealAll(){
+  if(!cur)return;
+  if(cur.seq){
+    cur.build=cur.order.slice();
+    document.querySelectorAll('#bank .tok').forEach(b=>b.disabled=true);
+    drawBuilt(cur.order.map(()=>true));
+  }else{
+    cur.fields.forEach((f,i)=>{const inp=document.getElementById('i'+i);inp.value=f.ans;inp.className='ok';
+      document.getElementById('m'+i).textContent='';});
+  }
+  if(!checked){checked=true;score.tries++;score.streak=0;updateScore();}
+  const v=document.getElementById('d-verdict');v.className='verdict show fail';
+  v.textContent='Answers filled in. Now hit New problem and do the same drill again without looking.';
+  clearInterval(timer);
+}
+function updateScore(){
+  document.getElementById('sc-ok').textContent=score.ok;
+  document.getElementById('sc-try').textContent=score.tries;
+  document.getElementById('sc-streak').textContent=score.streak;
+  document.getElementById('sc-best').textContent=score.best;
+}
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('view-drill').style.display==='none')return;
+  if(e.key==='Enter'){e.preventDefault();e.shiftKey?newProblem():checkNow();}
+});
+function showTab(t){
+  ['drill','heur','write','check'].forEach(x=>{
+    document.getElementById('view-'+x).style.display=(x===t)?(x==='drill'?'grid':'block'):'none';
+    document.getElementById('tab-'+x).setAttribute('aria-selected',String(x===t));
+  });
+  window.scrollTo(0,0);
+}
+
+/* ================= READING CONTENT ================= */
+document.getElementById('view-heur').innerHTML=`
+<h2>How to use this in the next 24 hours</h2>
+<div class="rule"><b>The loop:</b> read one heuristic card → do that drill 3 times in a row → only move on when you hit two clean runs inside the target time. Do not read all the cards first. Reading feels like studying and isn't.</div>
+<p>Suggested split if you have roughly 10 working hours: 3h on Module 3 (infix/postfix and circular queues are the highest-yield, most mechanical marks), 3h on Module 1 sorting traces and binary search, 2h on linked-list pointer ordering, 2h on mixed random drills at the end. Sleep. Tired tracing is where the silly sign errors come from.</p>
+
+<h2>Module 1 — arrays, search, sort</h2>
+
+<h3>Binary search</h3>
+<div class="rule">Table with three columns: <code>low | high | mid</code>. One row per iteration. <code>mid = (low+high)/2</code>, integer division. Compare key with a[mid]: less → <code>high = mid−1</code>, greater → <code>low = mid+1</code>. Loop while <code>low ≤ high</code>.</div>
+<p>Two things that cost marks: forgetting that the array must already be sorted, and writing <code>high = mid</code> instead of <code>mid − 1</code> (that loops forever). Failure exits with <code>low &gt; high</code>. Number of comparisons is at most ⌊log₂n⌋ + 1.</p>
+
+<h3>Bubble sort</h3>
+<div class="rule">Pass i (i = 0 … n−2): walk j from 0 to n−2−i, swap if <code>a[j] &gt; a[j+1]</code>. After pass i, the largest i+1 elements are parked at the end.</div>
+<p>Write the whole array after each pass, and underline the parked tail — examiners look for the tail growing by exactly one per pass. Optimised version: if no swap happened in a pass, stop. Best O(n), average and worst O(n²).</p>
+
+<h3>Selection sort</h3>
+<div class="rule">Pass i: scan a[i…n−1] for the minimum, swap it with a[i]. Exactly one swap per pass, n−1 passes.</div>
+<p>The easiest to check yourself: if a pass produced more than one change in the array, you made an error. Always O(n²) comparisons, O(n) swaps.</p>
+
+<h3>Insertion sort</h3>
+<div class="rule">For i = 1 … n−1: <code>key = a[i]</code>, shift every element of a[0…i−1] that is greater than key one place to the right, drop key into the hole.</div>
+<p>Think "picking up a playing card and sliding it into your hand". After pass i the first i+1 cells are sorted among themselves. Best case O(n) on an already sorted array — a standard viva question.</p>
+
+<h3>Quick sort</h3>
+<div class="rule">Pivot = a[low]. <code>i = low+1</code>, <code>j = high</code>. Move i right while a[i] ≤ pivot. Move j left while a[j] &gt; pivot. If i &lt; j swap a[i] and a[j] and repeat. When i ≥ j, swap a[low] with a[j]. j is the pivot's final index. Recurse on a[low…j−1] and a[j+1…high].</div>
+<p>Checkpoint after every partition: everything left of the pivot must be ≤ it, everything right must be &gt; it. If that fails, you moved a pointer one step too far. Average O(n log n), worst O(n²) on already-sorted input with a first-element pivot.</p>
+
+<h3>Merge sort</h3>
+<div class="rule">Split the array in half repeatedly until every block has one element, then merge pairs of sorted blocks back up. Merging: compare the two front elements, take the smaller, advance; when one block empties, copy the rest of the other.</div>
+<p>Draw it as a tree with the splits going down and the merges coming up. For n = 8 the merge level sizes are 2, 4, 8. Always O(n log n), needs O(n) extra space, and it is stable.</p>
+
+<h3>Sparse matrix</h3>
+<div class="rule">Triplet table row 0 = <code>rows cols number-of-non-zeros</code>. Then one row per non-zero in row-major order: <code>row col value</code>.</div>
+<p>Simple transpose: for each column c of A, scan the whole triplet list and copy out the entries in that column, swapping row and column — O(cols × terms). Fast transpose: first count how many non-zeros each column of A holds, turn those counts into starting positions for each row of the transpose, then place every triplet in one pass — O(cols + terms). If asked for fast transpose, the two little arrays (<code>rowTerms[]</code> and <code>startingPos[]</code>) must appear in your answer; that's where the marks are.</p>
+
+<h3>Recursion</h3>
+<div class="rule">Every recursive answer needs two named parts: the <b>base case</b> (stops the recursion) and the <b>recursive case</b> (moves strictly toward the base case).</div>
+<p>To trace, write the call chain going down, then fill the return values coming back up. Don't try to hold it in your head. Standard counts worth memorising: factorial(n) makes n+1 calls; Hanoi(n) makes 2ⁿ−1 moves; naive fib(n) makes 2·F(n+1)−1 calls.</p>
+
+<h3>Pointers and dynamic memory</h3>
+<pre>int *p = (int *)malloc(n * sizeof(int));   /* uninitialised */
+int *q = (int *)calloc(n, sizeof(int));    /* zero-filled   */
+p = (int *)realloc(p, m * sizeof(int));    /* resize        */
+free(p); p = NULL;                         /* always both   */</pre>
+<p>malloc takes one argument (total bytes), calloc takes two (count, size) and zeroes the memory. Both return <code>void *</code> and return <code>NULL</code> on failure — check it. Every write-up loses marks if the NULL check or the <code>free()</code> is missing.</p>
+
+<h2>Module 2 — linked lists</h2>
+
+<div class="rule"><b>The single rule that prevents most linked-list errors:</b> connect the new node to the list <b>before</b> you break any existing link. Any line that overwrites a pointer you still need must come last.</div>
+
+<h3>Singly linked list</h3>
+<pre>struct node { int data; struct node *link; };</pre>
+<p>Insert after p: <code>temp-&gt;link = p-&gt;link;</code> then <code>p-&gt;link = temp;</code>. Insert at front: <code>temp-&gt;link = head;</code> then <code>head = temp;</code>. Delete needs two pointers, prev and cur, and three cases: empty/not found, first node (<code>prev == NULL</code>), middle or last.</p>
+<p>Reversal uses three pointers — prev, cur, next. Save next first, flip <code>cur-&gt;link = prev</code>, then slide both forward. Finish with <code>head = prev</code>.</p>
+
+<h3>Doubly linked list</h3>
+<pre>struct dnode { int info; struct dnode *prev, *next; };</pre>
+<p>Every insertion touches four links, every deletion touches two. Insert after cur, in this order: <code>temp-&gt;prev = cur</code>, <code>temp-&gt;next = cur-&gt;next</code>, <code>cur-&gt;next-&gt;prev = temp</code> (guard for NULL), <code>cur-&gt;next = temp</code>. Delete cur: bypass from the left, bypass from the right, then free — with else-branches for head and tail.</p>
+
+<h3>Circular lists and header nodes</h3>
+<p>Circular singly linked list: the last node's link points back to the first. Keeping a single <code>last</code> pointer gives O(1) access to both ends, because <code>last-&gt;link</code> is the first node. Traversal condition changes from <code>while(cur != NULL)</code> to a do-while that stops when you return to the starting node.</p>
+<p>A header node is a dummy first node holding no real data. It removes the "inserting/deleting the first node" special case entirely, so <code>prev == NULL</code> never happens — worth saying explicitly if asked why header nodes are used.</p>
+
+<h3>Polynomials</h3>
+<pre>struct poly { int coef, expo; struct poly *link; };</pre>
+<div class="rule">Terms are stored in <b>descending</b> exponent order. Addition: compare the front exponents of the two lists. Equal → add coefficients, advance both, attach only if the sum is non-zero. Otherwise → copy the larger-exponent term and advance only that list. When one list runs out, append the rest of the other.</div>
+<p>Multiplication: every term of P times every term of Q, then combine like exponents and sort descending. Degree of the result = degP + degQ.</p>
+
+<h2>Module 3 — stacks and queues</h2>
+
+<h3>Stack</h3>
+<p>LIFO. Array version: <code>top = −1</code> when empty, full when <code>top == MAX−1</code>. Push is <code>a[++top] = x</code>, pop is <code>x = a[top--]</code>. Linked version pushes and pops at the front and can only overflow if malloc fails.</p>
+
+<h3>Infix → postfix (the highest-yield procedure in Module 3)</h3>
+<div class="rule">Scan the infix left to right, keep a stack of operators and a growing output string.<br>
+1. Operand → straight to output.<br>
+2. <code>(</code> → push.<br>
+3. <code>)</code> → pop to output until you meet <code>(</code>, then discard the <code>(</code>.<br>
+4. Operator → while the stack top is an operator with <b>higher or equal</b> precedence, pop it to output; then push the new operator. For right-associative <code>^</code>, pop only on <b>strictly higher</b> precedence.<br>
+5. End of input → pop everything remaining to output.</div>
+<p>Precedence: <code>^</code> &gt; <code>*</code> <code>/</code> &gt; <code>+</code> <code>−</code>. Parentheses never appear in the output. Show the scan as a three-column table — token | stack | output — because the table itself carries marks even if you slip on one row.</p>
+
+<h3>Infix → prefix</h3>
+<div class="rule">Reverse the infix string, swap each <code>(</code> with <code>)</code>, run the postfix algorithm (with <code>^</code> treated as left-associative in this direction), then reverse the result.</div>
+<p>Under time pressure the expression tree is safer: build the tree, then preorder gives prefix, inorder gives infix, postorder gives postfix. If you have time, convert your prefix answer back to infix as a check.</p>
+
+<h3>Evaluating postfix and prefix</h3>
+<div class="rule">Postfix: scan left→right. Operand → push. Operator → pop twice; the <b>first</b> pop is the <b>right</b> operand. Push the result.<br>
+Prefix: scan right→left. Operand → push. Operator → pop twice; the <b>first</b> pop is the <b>left</b> operand. Push the result.</div>
+<p>That operand order is the single most common mistake, and it only shows up with <code>−</code> and <code>/</code>. If your subtraction or division answer has the wrong sign, this is why.</p>
+
+<h3>Simple queue vs circular queue</h3>
+<div class="rule">Simple (linear) queue with <code>front = rear = −1</code>: enqueue does <code>a[++rear] = x</code>, dequeue does <code>front++</code>. Its flaw: once rear reaches MAX−1 it reports full even with free cells at the front.<br>
+Circular queue: empty when <code>front == −1</code>; full when <code>(rear+1) % N == front</code>. Enqueue: if empty set <code>front = 0</code>; <code>rear = (rear+1) % N</code>. Dequeue: if <code>front == rear</code> reset both to −1, else <code>front = (front+1) % N</code>.</div>
+<p>State which convention you are using at the top of the answer. The alternative convention keeps a count variable and leaves one cell unused — both are accepted, but mixing them mid-answer is not.</p>
+
+<h3>Deque and priority queue</h3>
+<p>Deque allows insertion and deletion at both ends. Input-restricted: insertion at one end only, deletion at both. Output-restricted: insertion at both, deletion at one end only.</p>
+<p>Priority queue: elements leave by priority, not arrival order, with FIFO among equal priorities. Ordered-list representation makes insertion O(n) and deletion O(1); unordered-list makes insertion O(1) and deletion O(n). Say which one you chose.</p>
+`;
+
+document.getElementById('view-write').innerHTML=`
+<h2>The write-up shape they want</h2>
+<p>Every program answer in this manual's style has the same five parts, in this order. Write the headings even when you are short on time — an incomplete answer with the right headings scores; a wall of code without them does not.</p>
+<pre>1. AIM        one sentence, restating the problem
+2. ALGORITHM  numbered steps, Start … Stop
+3. PROGRAM    the C code, with comments
+4. SAMPLE I/O input shown, output shown
+5. RESULT     one line: the program was executed and verified</pre>
+<div class="rule">Algorithm steps use this grammar: <code>Step 1: Start</code> · <code>Step 2: Read n</code> · <code>Step 3: Repeat steps 4–6 while i &lt; n</code> · <code>Step 7: Print …</code> · <code>Step 8: Stop</code>. Imperative verbs — Read, Set, Repeat, If … then, Print, Stop. No prose sentences.</div>
+
+<h2>Skeletons to reproduce from memory</h2>
+
+<h3>Program frame</h3>
+<pre>/* Name, Reg. No., Section */
+/* Problem statement in one line */
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#define MAX 100
+
+/* function prototypes */
+
+int main() {
+    /* declarations */
+    /* menu loop */
+    return 0;
+}</pre>
+
+<h3>Menu-driven skeleton (linked list, stack, queue — all of them)</h3>
+<pre>while(1) {
+    printf("\\n1. Insert\\n2. Delete\\n3. Display\\n4. Exit\\n");
+    printf("Enter your choice: ");
+    scanf("%d", &amp;choice);
+    switch(choice) {
+        case 1: printf("Enter element: "); scanf("%d", &amp;item);
+                head = insert(head, item); break;
+        case 2: printf("Enter element: "); scanf("%d", &amp;item);
+                head = delete(head, item); break;
+        case 3: display(head); break;
+        case 4: printf("Exiting.\\n"); return 0;
+        default: printf("Invalid choice! Try again.\\n");
+    }
+}</pre>
+<p>The manual asks for interactive prompts, input validation and meaningful error messages. The <code>default</code> branch and the empty-list / overflow / underflow messages are literally part of the marking.</p>
+
+<h3>Node creation (reuse this everywhere)</h3>
+<pre>struct node *createNode(int item) {
+    struct node *temp = (struct node *)malloc(sizeof(struct node));
+    if(temp == NULL) { printf("Memory allocation failed\\n"); exit(1); }
+    temp-&gt;data = item;
+    temp-&gt;link = NULL;
+    return temp;
+}</pre>
+
+<h3>Algorithm: linear search</h3>
+<pre>Step 1: Start
+Step 2: Read n and the array a[0…n−1], read key
+Step 3: Set i = 0, pos = −1
+Step 4: Repeat step 5 while i &lt; n
+Step 5:   If a[i] = key then set pos = i and go to step 6
+          Else set i = i + 1
+Step 6: If pos ≠ −1 print "Found at position pos"
+        Else print "Not found"
+Step 7: Stop</pre>
+
+<h3>Algorithm: binary search</h3>
+<pre>Step 1: Start
+Step 2: Read the sorted array a[0…n−1] and key
+Step 3: Set low = 0, high = n − 1
+Step 4: Repeat steps 5–7 while low ≤ high
+Step 5:   Set mid = (low + high) / 2
+Step 6:   If a[mid] = key then print mid and go to step 8
+Step 7:   If key &lt; a[mid] then set high = mid − 1
+          Else set low = mid + 1
+Step 8: If not found print "Not found"
+Step 9: Stop</pre>
+
+<h3>Algorithm: infix to postfix</h3>
+<pre>Step 1: Start
+Step 2: Read the infix expression, initialise an empty stack
+Step 3: Repeat steps 4–7 for each symbol of the expression
+Step 4:   If the symbol is an operand, add it to the postfix string
+Step 5:   If the symbol is '(', push it onto the stack
+Step 6:   If the symbol is ')', pop and add to postfix until '(' is
+          popped; discard the '('
+Step 7:   If the symbol is an operator, pop and add to postfix while
+          precedence(stack top) ≥ precedence(symbol); then push the symbol
+Step 8: Pop the remaining operators from the stack into postfix
+Step 9: Print the postfix expression
+Step 10: Stop</pre>
+
+<h3>Algorithm: postfix evaluation</h3>
+<pre>Step 1: Start
+Step 2: Read the postfix expression, initialise an empty stack
+Step 3: Repeat steps 4–5 for each symbol
+Step 4:   If the symbol is an operand, push it
+Step 5:   If the symbol is an operator, pop op2, pop op1,
+          compute res = op1 (operator) op2, push res
+Step 6: Pop the stack; this value is the result
+Step 7: Stop</pre>
+
+<h3>Algorithm: insert at a given position in a doubly linked list</h3>
+<pre>Step 1: Start
+Step 2: Read item and position pos
+Step 3: Create a new node temp with temp→info = item
+Step 4: If pos = 1 then set temp→next = head, temp→prev = NULL,
+        if head ≠ NULL set head→prev = temp, set head = temp, go to step 8
+Step 5: Set cur = head, i = 1
+Step 6: Repeat while cur ≠ NULL and i &lt; pos − 1: cur = cur→next, i = i + 1
+Step 7: If cur = NULL print "Invalid position"
+        Else set temp→prev = cur, temp→next = cur→next,
+             if cur→next ≠ NULL set cur→next→prev = temp,
+             set cur→next = temp
+Step 8: Stop</pre>
+
+<h3>Algorithm: circular queue enqueue / dequeue</h3>
+<pre>ENQUEUE
+Step 1: If (rear + 1) mod N = front then print "Queue overflow", stop
+Step 2: If front = −1 then set front = 0
+Step 3: Set rear = (rear + 1) mod N
+Step 4: Set q[rear] = item
+Step 5: Stop
+
+DEQUEUE
+Step 1: If front = −1 then print "Queue underflow", stop
+Step 2: Set item = q[front]
+Step 3: If front = rear then set front = −1, rear = −1
+        Else set front = (front + 1) mod N
+Step 4: Print item
+Step 5: Stop</pre>
+
+<h2>Complexity table — memorise, it gets asked</h2>
+<table class="g">
+<tr><th>Operation</th><th class="m">Best</th><th class="m">Average</th><th class="m">Worst</th><th>Note</th></tr>
+<tr><td>Linear search</td><td class="m">O(1)</td><td class="m">O(n)</td><td class="m">O(n)</td><td>unsorted ok</td></tr>
+<tr><td>Binary search</td><td class="m">O(1)</td><td class="m">O(log n)</td><td class="m">O(log n)</td><td>needs sorted array</td></tr>
+<tr><td>Bubble sort</td><td class="m">O(n)</td><td class="m">O(n²)</td><td class="m">O(n²)</td><td>best only if optimised; stable</td></tr>
+<tr><td>Selection sort</td><td class="m">O(n²)</td><td class="m">O(n²)</td><td class="m">O(n²)</td><td>fewest swaps; not stable</td></tr>
+<tr><td>Insertion sort</td><td class="m">O(n)</td><td class="m">O(n²)</td><td class="m">O(n²)</td><td>good on nearly-sorted; stable</td></tr>
+<tr><td>Merge sort</td><td class="m">O(n log n)</td><td class="m">O(n log n)</td><td class="m">O(n log n)</td><td>O(n) extra space; stable</td></tr>
+<tr><td>Quick sort</td><td class="m">O(n log n)</td><td class="m">O(n log n)</td><td class="m">O(n²)</td><td>worst on sorted input; not stable</td></tr>
+<tr><td>Linked list insert at front</td><td class="m">O(1)</td><td class="m">O(1)</td><td class="m">O(1)</td><td>at end O(n) without a tail pointer</td></tr>
+<tr><td>Linked list search / delete by key</td><td class="m">O(1)</td><td class="m">O(n)</td><td class="m">O(n)</td><td>no random access</td></tr>
+<tr><td>Stack / queue push, pop, enqueue, dequeue</td><td class="m">O(1)</td><td class="m">O(1)</td><td class="m">O(1)</td><td>array or linked</td></tr>
+<tr><td>Priority queue (ordered list)</td><td class="m">O(1)</td><td class="m">O(n)</td><td class="m">O(n)</td><td>insert O(n), delete O(1)</td></tr>
+</table>
+`;
+
+document.getElementById('view-check').innerHTML=`
+<h2>Sixty-second sweep before you hand anything in</h2>
+<p>Run this list on every answer. It is ordered by how often each mistake actually costs marks.</p>
+
+<h3>Tracing answers</h3>
+<ol>
+<li>Did I state my indexing convention (0-based vs 1-based) and stick to it for the whole answer?</li>
+<li>Sorting: does the array after each pass still contain exactly the same multiset of numbers as the input? Count them.</li>
+<li>Sorting: does the sorted region grow by exactly one element per pass?</li>
+<li>Binary search: is every <code>mid</code> actually between its own <code>low</code> and <code>high</code>? Is the interval strictly shrinking?</li>
+<li>Quick sort: after the partition, is everything left of the pivot ≤ pivot and everything right &gt; pivot?</li>
+<li>Postfix/prefix evaluation: on the first pop, did I take the right operand (postfix) or the left operand (prefix)? Check any <code>−</code> or <code>/</code> twice.</li>
+<li>Infix→postfix: are there zero parentheses in my output, and does the operand order match the input exactly?</li>
+<li>Circular queue: did a rejected overflow/underflow operation leave front and rear unchanged?</li>
+<li>Circular queue: after removing the last element, did both front and rear go back to −1?</li>
+</ol>
+
+<h3>Code and write-ups</h3>
+<ol>
+<li>Is there an <code>Aim</code>, an <code>Algorithm</code> with numbered steps ending in <code>Stop</code>, the code, and sample I/O? All four.</li>
+<li><code>#include &lt;stdlib.h&gt;</code> present whenever malloc, calloc, realloc, free or exit appear.</li>
+<li>Every <code>malloc</code> result cast and NULL-checked; every allocated node eventually <code>free</code>d.</li>
+<li><code>&amp;</code> in every <code>scanf</code> for an <code>int</code>, <code>float</code> or <code>char</code> variable — and <b>no</b> <code>&amp;</code> for an array or string name.</li>
+<li>Empty-list, overflow and underflow messages present in every stack, queue and list operation.</li>
+<li><code>default:</code> case in the menu switch, and a <code>break;</code> at the end of every other case.</li>
+<li>Linked list delete handles three cases: empty/not found, first node, middle or last node.</li>
+<li>Doubly linked list insert and delete guard every <code>-&gt;prev</code> and <code>-&gt;next</code> dereference against NULL, and update head or tail where needed.</li>
+<li>Reversal and traversal loops save <code>next</code> before overwriting a link.</li>
+<li>Linked queue: after dequeuing the last node, <code>rear</code> set back to NULL.</li>
+<li>Function prototypes declared above <code>main</code>, and <code>return 0;</code> at the end of <code>main</code>.</li>
+<li>Meaningful variable names, indentation, and a comment above each function saying what it does, its inputs and its outputs — the manual asks for this explicitly.</li>
+</ol>
+
+<div class="warn"><b>If you run short on time:</b> write the Aim and the numbered Algorithm first, then the function that does the actual data-structure work, then <code>main</code>. A correct algorithm with a half-finished <code>main</code> scores far better than a complete <code>main</code> with no algorithm section.</div>
+
+<h2>The five errors most likely to sink you</h2>
+<div class="cardgrid">
+<div class="mini"><h4>Link broken before it is copied</h4><p>Writing <code>p-&gt;link = temp;</code> before <code>temp-&gt;link = p-&gt;link;</code>. The rest of the list is gone. Always attach first, cut second.</p></div>
+<div class="mini"><h4>Operand order in evaluation</h4><p>The first pop is the right operand in postfix, the left operand in prefix. Only visible with − and ÷, which is exactly why they set those.</p></div>
+<div class="mini"><h4>Circular queue full test</h4><p><code>rear == N−1</code> is the linear-queue test. Circular needs <code>(rear+1) % N == front</code>.</p></div>
+<div class="mini"><h4>Off-by-one in the inner sort loop</h4><p>Bubble's inner loop runs to <code>n−2−i</code>, not <code>n−1</code>. Going one further reads past the end.</p></div>
+<div class="mini"><h4>Missing head/tail update</h4><p>Deleting the first or last node must move <code>head</code> or <code>tail</code>, not just relink neighbours.</p></div>
+</div>
+`;
+
+/* boot */
+renderRail();
+loadDrill('bin');
+</script>
+</body>
+</html>
