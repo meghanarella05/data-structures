@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CES2101 — Data Structures as a Business</title>
+<style>
+:root{
+  --bg:#f7f4ee; --ink:#17212b; --muted:#65727d; --card:#fff;
+  --line:#d9d2c8; --accent:#4055d6; --soft:#eef0ff;
+  --green:#18785b; --greenbg:#e8f6f0; --orange:#a86600; --orangebg:#fff2d9;
+  --pink:#9b4778; --pinkbg:#f9eaf3;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.5}
+.wrap{max-width:1050px;margin:auto;padding:22px 16px 70px}
+.hero{background:var(--ink);color:white;border-radius:18px;padding:28px 24px;margin-bottom:18px}
+.hero h1{margin:0;font-size:clamp(26px,5vw,42px);line-height:1.05}
+.hero p{margin:12px 0 0;color:#dce2e8;font-size:16px}
+.badge{display:inline-block;background:#ffffff18;border:1px solid #ffffff30;border-radius:999px;padding:5px 10px;font-size:12px;margin-bottom:12px}
+h2{font-size:25px;margin:34px 0 12px}
+h3{font-size:19px;margin:0 0 8px}
+p{margin:7px 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:17px;margin:12px 0;box-shadow:0 2px 8px #00000008}
+.big{font-size:18px}
+.flow{display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap;margin:16px 0}
+.box{background:var(--soft);border:2px solid #cbd0f7;border-radius:12px;padding:10px 14px;text-align:center;font-weight:700;min-width:115px}
+.arrow{font-size:25px;font-weight:800;color:var(--accent)}
+.diagram{background:#fbfaf7;border:1px dashed var(--line);border-radius:13px;padding:15px;margin:12px 0;overflow:auto}
+pre{margin:0;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:14px;line-height:1.55;white-space:pre-wrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:12px}
+.mini{background:white;border:1px solid var(--line);border-radius:14px;padding:15px}
+.mini b{display:block;margin-bottom:4px}
+.tag{display:inline-block;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:800;background:var(--orangebg);color:var(--orange)}
+.green{background:var(--greenbg);border-color:#bfe6d5}
+.pink{background:var(--pinkbg);border-color:#ecc7dd}
+.rule{background:var(--soft);border-left:4px solid var(--accent);padding:12px 14px;border-radius:9px;margin:12px 0}
+.callout{background:var(--orangebg);border:1px solid #efd29a;border-radius:13px;padding:14px;margin:15px 0}
+table{border-collapse:collapse;width:100%;background:white;border-radius:12px;overflow:hidden}
+th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:#f0eee9}
+.check{display:flex;gap:9px;align-items:flex-start;margin:8px 0}
+.check::before{content:"☐";font-size:18px}
+.footer{text-align:center;color:var(--muted);margin-top:30px;font-size:13px}
+@media(max-width:600px){.wrap{padding:14px 11px 50px}.hero{padding:22px 18px}h2{font-size:22px}.box{min-width:100px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section class="hero">
+  <span class="badge">CES2101 · Modules 1–3</span>
+  <h1>Data Structures<br>as a Business 🧠🏢</h1>
+  <p>Don't memorize a pile of algorithms. Walk through a company, hit problems, and discover the data structure that solves each one.</p>
+</section>
+
+<div class="callout big">
+  <b>Your only question:</b><br>
+  “What problem does the business have, what state do I have, and what operation needs to be easy?”
+</div>
+
+<h2>🌳 The whole subject in ONE picture</h2>
+<div class="diagram">
+<pre>
+                         COMPANY DATA
+                              │
+                              ▼
+                   ┌────────────────────┐
+                   │ What do I need?    │
+                   └────────────────────┘
+                              │
+          ┌───────────────────┼───────────────────┐
+          ▼                   ▼                   ▼
+       FIND IT             ORDER IT          STORE / CHANGE IT
+          │                   │                   │
+          ▼                   ▼                   ▼
+   Binary Search          Sorting          Linked Structures
+                                              │
+                                    ┌─────────┼─────────┐
+                                    ▼         ▼         ▼
+                                   SLL       DLL      Dynamic nodes
+
+                              ACCESS IN A RULE
+                                      │
+                         ┌────────────┼────────────┐
+                         ▼            ▼            ▼
+                       STACK        QUEUE       PRIORITY
+                        LIFO         FIFO        by priority
+                                      │
+                                  variants
+                                      │
+                              circular / deque
+
+                 EXPRESSIONS → STACK → evaluate
+                 RECURSION   → smaller problem → base case → return
+</pre>
+</div>
+
+<div class="rule">
+  <b>Study rule:</b> every time you meet a topic, first identify the <b>business problem</b>. Only then learn the procedure.
+</div>
+
+<h2>DAY 1 — 🔎 “Find this customer.”</h2>
+<div class="card">
+  <p class="big">You have millions of <b>sorted</b> customer IDs. Someone gives you one ID.</p>
+  <div class="flow">
+    <div class="box">10M IDs</div><div class="arrow">→</div>
+    <div class="box">Need 1 ID</div><div class="arrow">→</div>
+    <div class="box">Throw away<br>half each time</div>
+  </div>
+  <p><b>That's Binary Search.</b></p>
+  <div class="diagram"><pre>
+low ───────────────────────── high
+                 │
+                mid
+                 ↓
+        compare key with a[mid]
+
+key smaller → discard RIGHT half
+key bigger  → discard LEFT half
+  </pre></div>
+  <p class="tag">MENTAL MODEL</p>
+  <p><b>“Where could the answer still possibly be?”</b></p>
+  <p>Exam trace = <code>low | high | mid</code>. The table is just the search space shrinking.</p>
+</div>
+
+<h2>DAY 2 — 🔀 “Our data is a mess. Sort it.”</h2>
+<div class="grid">
+  <div class="mini">
+    <b>🫧 Bubble Sort</b>
+    <p>Fix local disorder by comparing neighbours.</p>
+    <div class="diagram"><pre>81 23 47 5
+↓  compare neighbours
+23 47 5 81
+             ↑
+        largest locked</pre></div>
+    <b>Think:</b> “Big things bubble to the end.”
+  </div>
+  <div class="mini">
+    <b>🎯 Selection Sort</b>
+    <p>Find the smallest remaining item and lock it into place.</p>
+    <div class="diagram"><pre> ? ? ? ? | sorted
+ ↓
+minimum → first free slot</pre></div>
+    <b>Think:</b> “Pick the next winner.”
+  </div>
+  <div class="mini">
+    <b>🃏 Insertion Sort</b>
+    <p>Keep a sorted prefix; insert the next item into it.</p>
+    <div class="diagram"><pre>5 19 23 47 | 14
+             ↓
+5 14 19 23 47</pre></div>
+    <b>Think:</b> “My left hand is already sorted.”
+  </div>
+</div>
+
+<h2>DAY 3 — 🧩 “The dataset is huge.”</h2>
+<div class="card">
+  <h3>Merge Sort</h3>
+  <div class="flow">
+    <div class="box">Huge problem</div><div class="arrow">→</div>
+    <div class="box">Split</div><div class="arrow">→</div>
+    <div class="box">Small sorted pieces</div><div class="arrow">→</div>
+    <div class="box">Merge</div>
+  </div>
+  <div class="diagram"><pre>
+[8 3 7 4 2 6 5 1]
+        ↓
+[8 3 7 4] [2 6 5 1]
+        ↓
+[3 4 7 8] [1 2 5 6]
+        ↓
+[1 2 3 4 5 6 7 8]</pre></div>
+  <p><b>Think:</b> “Solve smaller pieces, then combine known-good pieces.”</p>
+</div>
+
+<div class="card pink">
+  <h3>⚡ Quick Sort</h3>
+  <p>Pick a pivot and partition the world around it.</p>
+  <div class="flow">
+    <div class="box">[messy data]</div><div class="arrow">→</div>
+    <div class="box">smaller</div><div class="box">PIVOT</div><div class="box">larger</div>
+  </div>
+  <p><b>Think:</b> “Put things into two regions around a representative.”</p>
+</div>
+
+<h2>DAY 4 — 🗺️ “Most of this matrix is empty.”</h2>
+<div class="card">
+  <p>You're storing a huge matrix where almost everything is zero.</p>
+  <div class="diagram"><pre>
+0 0 0 0 0 7
+0 0 0 0 0 0
+0 3 0 0 0 0
+0 0 0 0 0 0
+
+Instead of storing ALL cells:
+
+(row, column, value)
+(0, 5, 7)
+(2, 1, 3)
+  </pre></div>
+  <p><b>Sparse Matrix / Triplet representation.</b></p>
+  <p>Think: <b>“Only store what actually exists.”</b></p>
+</div>
+
+<h2>DAY 5 — 🪆 “This problem contains a smaller version of itself.”</h2>
+<div class="card green">
+  <h3>Recursion</h3>
+  <div class="flow">
+    <div class="box">f(n)</div><div class="arrow">→</div>
+    <div class="box">f(smaller)</div><div class="arrow">→</div>
+    <div class="box">BASE CASE</div>
+  </div>
+  <div class="diagram"><pre>
+Going DOWN:
+f(n)
+ ↓
+f(n-1)
+ ↓
+f(n-2)
+ ↓
+BASE CASE
+ ↓
+return
+ ↓
+rebuild answer going UP
+  </pre></div>
+  <p><b>Think:</b> “Can I express this problem as a smaller copy of itself?”</p>
+</div>
+
+<h2>DAY 6 — 🔗 “Our records need to grow dynamically.”</h2>
+<div class="card">
+  <h3>Singly Linked List</h3>
+  <div class="flow">
+    <div class="box">A</div><div class="arrow">→</div>
+    <div class="box">B</div><div class="arrow">→</div>
+    <div class="box">C</div><div class="arrow">→</div>
+    <div class="box">NULL</div>
+  </div>
+  <p>Each node knows where the next node is.</p>
+  <p><b>Business problem:</b> insert/delete without shifting an entire array.</p>
+</div>
+
+<div class="card">
+  <h3>😈 “Insert Meghu between B and C.”</h3>
+  <div class="diagram"><pre>
+BEFORE:
+A → B → C → D
+
+SAFE:
+M → C       (save the old link)
+B → M       (then redirect B)
+
+AFTER:
+A → B → M → C → D
+  </pre></div>
+  <div class="callout"><b>Core invariant:</b> DON'T destroy the route to the rest of the list before you've saved it.</div>
+  <p>This is why pointer-ordering questions exist. They test whether you can preserve the structure, not whether you can admire C syntax.</p>
+</div>
+
+<div class="card">
+  <h3>↔️ Doubly Linked List</h3>
+  <div class="flow">
+    <div class="box">A</div><div class="arrow">↔</div>
+    <div class="box">B</div><div class="arrow">↔</div>
+    <div class="box">C</div>
+  </div>
+  <p>Now each node knows <b>previous + next</b>. Insertion/deletion means fixing both directions.</p>
+</div>
+
+<h2>DAY 7 — 📚 “We need UNDO.”</h2>
+<div class="card">
+  <h3>Stack = Last In → First Out</h3>
+  <div class="flow">
+    <div class="box">Type A</div><div class="arrow">→</div>
+    <div class="box">Type B</div><div class="arrow">→</div>
+    <div class="box">Change C</div><div class="arrow">→</div>
+    <div class="box">UNDO → C</div>
+  </div>
+  <div class="diagram"><pre>
+        TOP
+         ↓
+       [ C ] ← pop first
+       [ B ]
+       [ A ]
+  </pre></div>
+  <p><b>Think:</b> “The newest thing must come out first.”</p>
+</div>
+
+<h2>DAY 8 — 🎟️ “Customers are waiting.”</h2>
+<div class="card">
+  <h3>Queue = First In → First Out</h3>
+  <div class="flow">
+    <div class="box">A</div><div class="arrow">→</div>
+    <div class="box">B</div><div class="arrow">→</div>
+    <div class="box">C</div><div class="arrow">→</div>
+    <div class="box">D</div>
+  </div>
+  <p><b>A gets served first.</b> Enqueue at rear. Dequeue at front.</p>
+  <p><b>Think:</b> “It's literally a waiting line.”</p>
+</div>
+
+<h2>DAY 9 — 🔄 “The queue wastes space.”</h2>
+<div class="card">
+  <h3>Circular Queue</h3>
+  <div class="diagram"><pre>
+Linear queue:
+[ _ ][ _ ][ C ][ D ][ E ]
+  ↑ free space       ↑ rear
+
+Problem:
+rear reached the physical end,
+but the front has empty cells.
+
+Circular solution:
+[ F ][ G ][ C ][ D ][ E ]
+  ↑
+wrap around!
+
+FULL condition:
+(rear + 1) % N == front
+  </pre></div>
+  <p><b>Think:</b> “The array is a ring, so rear can wrap around.”</p>
+</div>
+
+<h2>DAY 10 — 🚪 “Sometimes I need both ends.”</h2>
+<div class="card">
+  <h3>Deque</h3>
+  <div class="flow">
+    <div class="box">INSERT</div><div class="arrow">↔</div>
+    <div class="box">A B C</div><div class="arrow">↔</div>
+    <div class="box">DELETE</div>
+  </div>
+  <p>Insertion and deletion can happen at <b>both ends</b>.</p>
+  <p><b>Think:</b> “Queue, but both doors work.”</p>
+</div>
+
+<h2>DAY 11 — 🚨 “Arrival order isn't enough.”</h2>
+<div class="card">
+  <h3>Priority Queue</h3>
+  <div class="diagram"><pre>
+Patient A → priority 4
+Patient B → priority 1
+Patient C → priority 3
+
+SERVE:
+B → C → A
+
+Why?
+Priority determines service order.
+Equal priority → FIFO.
+  </pre></div>
+  <p><b>Think:</b> “Who should be served next depends on importance, not arrival.”</p>
+  <p>Engineering trade-off: an ordered-list representation makes insertion O(n) and deletion O(1); an unordered list reverses that trade-off.</p>
+</div>
+
+<h2>DAY 12 — 🧮 “Our software receives expressions.”</h2>
+<div class="card">
+  <h3>Infix → Postfix</h3>
+  <div class="flow">
+    <div class="box">A + B * C</div><div class="arrow">→</div>
+    <div class="box">STACK</div><div class="arrow">→</div>
+    <div class="box">ABC*+</div>
+  </div>
+  <div class="diagram"><pre>
+SCAN LEFT → RIGHT
+
+operand  → output
+(        → stack
+)        → pop until (
+operator → use precedence + stack
+end      → pop remaining operators
+
+^  >  * /  >  + -
+  </pre></div>
+  <p><b>Think:</b> “Which operators are waiting for their turn?”</p>
+</div>
+
+<div class="card green">
+  <h3>Postfix Evaluation</h3>
+  <div class="diagram"><pre>
+2 3 + 4 *
+
+2 → push
+3 → push
++ → pop 3, pop 2 → 5 → push
+4 → push
+* → pop 4, pop 5 → 20
+
+ANSWER = 20
+  </pre></div>
+  <p><b>Critical:</b> in postfix, the <b>first pop is the RIGHT operand</b>.</p>
+</div>
+
+<div class="card">
+  <h3>🧷 Parenthesis Matching</h3>
+  <div class="diagram"><pre>
+{ [ ( ) ] }
+
+opening bracket → PUSH
+closing bracket → check most recent opening bracket
+end → stack must be EMPTY
+  </pre></div>
+  <p>Same stack. Different business problem. That's the point.</p>
+</div>
+
+<h2>🎯 NOW: what the exam is actually asking you to do</h2>
+<div class="diagram">
+<pre>
+QUESTION
+   │
+   ▼
+What kind of PROBLEM is this?
+   │
+   ├── Need to FIND efficiently?
+   │       └── sorted → BINARY SEARCH
+   │
+   ├── Need to CREATE ORDER?
+   │       ├── neighbours → BUBBLE
+   │       ├── minimum → SELECTION
+   │       ├── sorted prefix → INSERTION
+   │       ├── split + merge → MERGE
+   │       └── pivot partition → QUICK
+   │
+   ├── Need dynamic CONNECTIONS?
+   │       ├── one direction → SLL
+   │       └── both directions → DLL
+   │
+   ├── Need ACCESS ORDER?
+   │       ├── newest first → STACK
+   │       ├── oldest first → QUEUE
+   │       ├── wrap-around fixed queue → CIRCULAR QUEUE
+   │       ├── both ends → DEQUE
+   │       └── importance first → PRIORITY QUEUE
+   │
+   ├── Need EXPRESSION processing?
+   │       └── STACK
+   │
+   ├── Same problem at smaller scale?
+   │       └── RECURSION
+   │
+   └── Mostly empty matrix?
+           └── SPARSE / TRIPLET
+</pre>
+</div>
+
+<h2>🧠 Your 4-question cheat code</h2>
+<div class="grid">
+  <div class="mini"><span class="tag">1</span><b>WHAT DO I HAVE?</b><p>Array? chain? stack? queue? matrix? expression?</p></div>
+  <div class="mini"><span class="tag">2</span><b>WHAT DO I NEED?</b><p>Find? sort? insert? delete? evaluate? serve?</p></div>
+  <div class="mini"><span class="tag">3</span><b>WHAT MUST NOT BREAK?</b><p>Search interval? links? LIFO/FIFO? front/rear? operator order?</p></div>
+  <div class="mini"><span class="tag">4</span><b>WHAT DOES THE STATE BECOME?</b><p>Trace it one operation at a time. Don't jump.</p></div>
+</div>
+
+<h2>⚡ Then practice — don't over-study</h2>
+<div class="card">
+  <div class="check">Read the heuristic for one topic.</div>
+  <div class="check">Say the business problem in one sentence.</div>
+  <div class="check">Do one drill carefully.</div>
+  <div class="check">Do a fresh drill WITHOUT the heuristic.</div>
+  <div class="check">If you recognize + execute it cleanly → MOVE ON.</div>
+  <div class="check">If you blank or make structural mistakes → one more rep.</div>
+</div>
+
+<div class="callout">
+  <b>THE ACTUAL GOAL:</b><br><br>
+  You don't want to remember “Module 3 = postfix question.”
+  <br><br>
+  You want to see an expression and immediately think:
+  <br><br>
+  <b>“Ah. This is an ordering/state problem. The stack is the temporary memory.”</b>
+  <br><br>
+  That's when the syllabus stops being a list and becomes a machine.
+</div>
+
+<div class="footer">CES2101 · Business-person walkthrough · ADHD-friendly visual version</div>
+</div>
+</body>
+</html>
